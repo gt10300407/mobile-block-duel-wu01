@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no" />
+  <meta name="theme-color" content="#000000" />
+  <link rel="icon" href="data:," />
+  <title>Block Duel WU01</title>
+  <link rel="stylesheet" href="./src/styles.css" />
+</head>
+<body>
+  <main id="app" class="app-shell">
+    <header class="hud-top">
+      <div class="stat"><span>점수</span><strong id="score">0</strong></div>
+      <div class="timer"><strong id="time">00:00</strong><small id="mode-label">버튼</small></div>
+      <button id="pause-btn" class="icon-button" aria-label="일시정지">Ⅱ</button>
+    </header>
+
+    <section class="preview-strip" aria-label="게임 정보">
+      <button id="hold-btn" class="preview-box hold-box" aria-label="홀드">
+        <span>HOLD</span>
+        <canvas id="hold" width="72" height="52" aria-label="홀드 블록"></canvas>
+      </button>
+
+      <div class="preview-box next-box">
+        <span>NEXT</span>
+        <canvas id="next" width="210" height="52" aria-label="다음 블록 3개"></canvas>
+      </div>
+
+      <div class="mini-stats" aria-label="게임 통계">
+        <span>라인 <b id="lines">0</b></span>
+        <span>콤보 <b id="combo">0</b></span>
+      </div>
+    </section>
+
+    <section id="game-stage" class="game-stage">
+      <section id="board-wrap" class="board-wrap" aria-label="게임 보드">
+        <canvas id="board" width="300" height="600"></canvas>
+        <div id="combo-pop" class="combo-pop" aria-live="polite"></div>
+        <div id="overlay" class="overlay hidden">
+          <h1 id="overlay-title">일시정지</h1>
+          <button id="resume-btn">계속</button>
+          <button id="restart-btn">다시 시작</button>
+        </div>
+      </section>
+    </section>
+
+    <section id="controls" class="controls" aria-label="터치 조작">
+      <button data-action="left" aria-label="왼쪽">◀</button>
+      <button data-action="right" aria-label="오른쪽">▶</button>
+      <button data-action="soft" aria-label="천천히 내리기">▼</button>
+      <button data-action="rotate" aria-label="회전">↻</button>
+      <button data-action="hard" aria-label="빠른 내리기">⇓</button>
+    </section>
+
+    <footer class="bottom-bar">
+      <button id="mode-btn">스와이프 전환</button>
+      <span id="hint">버튼 조작</span>
+    </footer>
+  </main>
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>
