@@ -1,6 +1,6 @@
 {
-  "name":"mobile-block-duel-wu03",
-  "version":"0.3.0",
+  "name":"mobile-block-duel-wu03-1",
+  "version":"0.3.1",
   "private":true,
   "type":"module",
   "scripts":{"start":"python3 -m http.server 8080","test":"node --test tests/*.test.mjs"}

@@ -14,8 +14,16 @@ test('fast down flick resolves to hard drop', () => {
   assert.equal(classifyGesture({dx:2,dy:90,dt:80,moved:true,softSteps:0}), 'hard');
 });
 
-test('down gesture after soft steps never becomes hard drop', () => {
-  assert.equal(classifyGesture({dx:1,dy:110,dt:90,moved:true,softSteps:2}), 'none');
+test('fast down flick remains hard drop after a few soft steps', () => {
+  assert.equal(classifyGesture({dx:1,dy:110,dt:90,moved:true,softSteps:2}), 'hard');
+});
+
+test('peak segment speed can resolve hard drop on a longer gesture', () => {
+  assert.equal(classifyGesture({dx:3,dy:80,dt:260,moved:true,softSteps:2,peakDownSpeed:0.9}), 'hard');
+});
+
+test('slow down drag remains soft drop', () => {
+  assert.equal(classifyGesture({dx:2,dy:100,dt:420,moved:true,softSteps:3,peakDownSpeed:0.25}), 'soft');
 });
 
 test('axis lock chooses dominant direction only', () => {

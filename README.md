@@ -1,16 +1,17 @@
-# Mobile Block Duel WU03
+# Mobile Block Duel WU03.1
 
-모바일·태블릿 터치 전용 싱글 플레이 빌드.
+WU03 긴급 수정본.
 
-## WU03 추가
-- T-Spin 기본 판정
-- Back-to-Back
-- Perfect Clear
-- 콤보·레벨·속도 상승
-- 공격량 내부 계산 기반
-- 라인 제거 플래시와 강화된 피드백
+- iPhone에서 우측 라인/레벨/B2B 패널 잘림 수정
+- iOS 텍스트 자동 확대 방지
+- 빠른 아래 플릭 하드드롭 판정 수정
+- 느린 아래 드래그는 소프트드롭 유지
+- Web Audio 기반 효과음 추가
+- 하드드롭·라인 제거 화면 흔들림 강화
+- iPhone Safari 웹 진동 미지원 안내 추가
 
 ## 테스트
+
 ```bash
 npm test
 ```

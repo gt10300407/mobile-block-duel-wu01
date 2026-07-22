@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no" />
   <meta name="theme-color" content="#000000" />
   <link rel="icon" href="data:," />
-  <title>Block Duel WU03</title>
-  <link rel="stylesheet" href="./src/styles.css" />
+  <title>Block Duel WU03.1</title>
+  <link rel="stylesheet" href="./src/styles.css?v=031" />
 </head>
 <body>
   <main id="app" class="app-shell">
@@ -83,12 +83,14 @@
             <option value="high">높음</option>
           </select>
         </label>
-        <label class="switch-row"><span>진동</span><input id="haptic-toggle" type="checkbox" checked /></label>
+        <label class="switch-row"><span>효과음</span><input id="sound-toggle" type="checkbox" checked /></label>
+        <label class="switch-row"><span id="haptic-label">진동</span><input id="haptic-toggle" type="checkbox" checked /></label>
         <label class="switch-row"><span>화면 흔들림</span><input id="shake-toggle" type="checkbox" checked /></label>
+        <p id="platform-note" class="settings-note">효과음은 첫 터치 후 활성화돼.</p>
         <p class="settings-note">설정은 이 기기에 자동 저장돼.</p>
       </div>
     </section>
   </main>
-  <script type="module" src="./src/main.js"></script>
+  <script type="module" src="./src/main.js?v=031"></script>
 </body>
 </html>
