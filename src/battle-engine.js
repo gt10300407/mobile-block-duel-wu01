@@ -1,4 +1,3 @@
-
 export const BOT_COLS = 10;
 export const BOT_ROWS = 20;
 
@@ -40,21 +39,31 @@ export function randomBotStep(board, random = Math.random) {
   const next = board.map(row => [...row]);
   const width = random() > 0.76 ? 4 : random() > 0.42 ? 3 : 2;
   const start = Math.floor(random() * Math.max(1, BOT_COLS - width + 1));
-  const top = Math.max(2, BOT_ROWS - 1 - Math.floor(random() * 6));
+  const top = Math.max(2, BOT_ROWS - 1 - Math.floor(random() * 5));
   for (let x = start; x < Math.min(BOT_COLS, start + width); x += 1) {
     let y = top;
     while (y + 1 < BOT_ROWS && next[y + 1][x] === 0) y += 1;
     next[y][x] = 1 + Math.floor(random() * 7);
   }
   const full = [];
-  for (let y = 0; y < BOT_ROWS; y += 1) {
-    if (next[y].every(Boolean)) full.push(y);
-  }
+  for (let y = 0; y < BOT_ROWS; y += 1) if (next[y].every(Boolean)) full.push(y);
   for (const y of full) {
     next.splice(y, 1);
     next.unshift(Array(BOT_COLS).fill(0));
   }
   return { board: next, cleared: full.length };
+}
+
+export function botProfile(level = 'normal') {
+  return {
+    easy: { step: 900, attackCooldown: 7600, maxAttack: 1 },
+    normal: { step: 680, attackCooldown: 5900, maxAttack: 2 },
+    hard: { step: 470, attackCooldown: 4400, maxAttack: 3 },
+  }[level] || { step: 680, attackCooldown: 5900, maxAttack: 2 };
+}
+
+export function shouldSendBotAttack({ pending, roundActive, elapsed, cooldown }) {
+  return Boolean(roundActive && pending > 0 && elapsed >= cooldown);
 }
 
 const COLORS = ['#000','#29d8ff','#315cff','#ff9f2f','#ffe348','#48e878','#b45cff','#ff4668','#707889'];
@@ -66,21 +75,21 @@ class LocalBotDuel {
     this.ctx = this.canvas.getContext('2d');
     this.board = createBotBoard();
     this.pending = 0;
-    this.sent = 0;
     this.received = 0;
-    this.ko = 0;
-    this.playerKo = 0;
-    this.running = true;
+    this.playerScore = 0;
+    this.botScore = 0;
+    this.roundActive = true;
     this.difficulty = localStorage.getItem('block-duel-bot-difficulty') || 'normal';
     this.lastBotAttack = performance.now();
     this.lastBotStep = performance.now();
     this.bind();
-    this.render();
+    this.resetBot();
     requestAnimationFrame(t => this.loop(t));
   }
 
   bind() {
     window.addEventListener('playerattack', event => {
+      if (!this.roundActive) return;
       const amount = Math.max(0, Number(event.detail?.amount || 0));
       if (!amount) return;
       this.received += amount;
@@ -97,77 +106,98 @@ class LocalBotDuel {
     });
 
     window.addEventListener('playergameover', () => {
-      this.playerKo += 1;
-      this.updateKo();
+      if (!this.roundActive) return;
+      this.roundActive = false;
+      this.botScore += 1;
+      this.updateScore();
       this.flash('win');
-      setTimeout(() => this.resetBot(), 900);
+      this.setRoundStatus('라운드 종료');
+    });
+
+    window.addEventListener('playerroundstart', () => {
+      this.roundActive = true;
+      this.lastBotAttack = performance.now();
+      this.lastBotStep = performance.now();
+      this.resetBot();
+      this.setRoundStatus('대전 중');
+    });
+
+    window.addEventListener('duelmatchreset', () => {
+      this.playerScore = 0;
+      this.botScore = 0;
+      this.updateScore();
+      this.roundActive = true;
+      this.lastBotAttack = performance.now();
+      this.lastBotStep = performance.now();
+      this.resetBot();
+      this.setRoundStatus('대전 중');
     });
 
     document.querySelector('#bot-difficulty')?.addEventListener('change', event => {
       this.difficulty = event.target.value;
       localStorage.setItem('block-duel-bot-difficulty', this.difficulty);
+      this.lastBotAttack = performance.now();
+      this.lastBotStep = performance.now();
     });
 
     const select = document.querySelector('#bot-difficulty');
     if (select) select.value = this.difficulty;
   }
 
-  profile() {
-    return {
-      easy: { step: 720, attack: 5200, maxAttack: 1 },
-      normal: { step: 510, attack: 3900, maxAttack: 2 },
-      hard: { step: 330, attack: 2800, maxAttack: 4 },
-    }[this.difficulty] || { step: 510, attack: 3900, maxAttack: 2 };
-  }
-
   loop(now) {
-    if (!this.running) return;
-    const p = this.profile();
-
-    if (now - this.lastBotStep >= p.step) {
-      this.lastBotStep = now;
-      const result = randomBotStep(this.board);
-      this.board = result.board;
-      if (result.cleared) {
-        const attack = Math.min(p.maxAttack, Math.max(1, result.cleared));
-        this.pending += attack;
+    const p = botProfile(this.difficulty);
+    if (this.roundActive) {
+      if (now - this.lastBotStep >= p.step) {
+        this.lastBotStep = now;
+        const result = randomBotStep(this.board);
+        this.board = result.board;
+        if (result.cleared) this.pending += Math.min(p.maxAttack, Math.max(1, result.cleared));
+        if (dangerPercent(this.board) >= 100) this.botKnockout();
+        this.render();
       }
-      if (dangerPercent(this.board) >= 100) this.botKnockout();
-      this.render();
-    }
 
-    if (now - this.lastBotAttack >= p.attack) {
-      this.lastBotAttack = now;
-      const natural = 1 + Math.floor(Math.random() * p.maxAttack);
-      const amount = Math.max(1, this.pending || natural);
-      this.pending = 0;
-      this.sent += amount;
-      window.dispatchEvent(new CustomEvent('botattack', { detail: { amount } }));
-      this.flash('attack');
-      this.render();
+      if (shouldSendBotAttack({
+        pending: this.pending,
+        roundActive: this.roundActive,
+        elapsed: now - this.lastBotAttack,
+        cooldown: p.attackCooldown,
+      })) {
+        const amount = Math.min(p.maxAttack, this.pending);
+        this.pending -= amount;
+        this.lastBotAttack = now;
+        window.dispatchEvent(new CustomEvent('botattack', { detail: { amount } }));
+        this.flash('attack');
+        this.render();
+      }
     }
-
     requestAnimationFrame(t => this.loop(t));
   }
 
   botKnockout() {
-    this.ko += 1;
-    this.updateKo();
+    if (!this.roundActive) return;
+    this.roundActive = false;
+    this.playerScore += 1;
+    this.updateScore();
     this.flash('ko');
+    this.setRoundStatus('상대 KO');
     window.dispatchEvent(new CustomEvent('botko'));
-    setTimeout(() => this.resetBot(), 800);
   }
 
   resetBot() {
     this.board = createBotBoard();
     this.pending = 0;
-    for (let i = 0; i < 5; i += 1) this.board = randomBotStep(this.board).board;
+    for (let i = 0; i < 2; i += 1) this.board = randomBotStep(this.board).board;
     this.render();
   }
 
-  updateKo() {
+  updateScore() {
     const score = document.querySelector('#duel-score');
-    if (score) score.textContent = `${this.ko} : ${this.playerKo}`;
+    if (score) score.textContent = `${this.playerScore} : ${this.botScore}`;
+  }
+
+  setRoundStatus(text) {
+    const status = document.querySelector('#duel-status');
+    if (status) status.textContent = text;
   }
 
   flash(type) {

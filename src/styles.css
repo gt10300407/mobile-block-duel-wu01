@@ -107,21 +107,12 @@ button:disabled{opacity:.45}
 .clear-flash.show{animation:clear-flash .18s ease-out}
 @keyframes clear-flash{0%{opacity:.9}100%{opacity:0}}
 
-
 /* WU04 local bot duel */
 .app-shell{grid-template-rows:auto auto auto minmax(0,1fr) auto auto}
-.duel-strip{
-  min-height:54px;display:grid;
-  grid-template-columns:minmax(72px,.8fr) minmax(150px,1.4fr) minmax(78px,.8fr);
-  gap:8px;align-items:center;padding:0 8px
-}
+.duel-strip{min-height:54px;display:grid;grid-template-columns:minmax(72px,.8fr) minmax(150px,1.4fr) minmax(78px,.8fr);gap:8px;align-items:center;padding:0 8px}
 .duel-score{display:flex;align-items:center;justify-content:center;gap:7px;font-size:10px;color:var(--muted)}
 .duel-score strong{font-size:18px;color:var(--text)}
-.rival-panel{
-  height:52px;display:flex;justify-content:center;align-items:center;gap:8px;
-  border:1px solid #3b2148;border-radius:12px;background:#08070e;overflow:hidden;
-  transition:transform .15s,border-color .15s
-}
+.rival-panel{height:52px;display:flex;justify-content:center;align-items:center;gap:8px;border:1px solid #3b2148;border-radius:12px;background:#08070e;overflow:hidden;transition:transform .15s,border-color .15s}
 .rival-panel[data-flash="attack"]{border-color:#ff4668;transform:translateX(-2px)}
 .rival-panel[data-flash="hit"]{border-color:#29d8ff;transform:translateX(2px)}
 .rival-panel[data-flash="ko"]{border-color:#ffe348;transform:scale(1.03)}
@@ -133,15 +124,15 @@ button:disabled{opacity:.45}
 .rival-danger i{display:block;width:var(--danger);height:100%;background:linear-gradient(90deg,#48e878,#ffe348,#ff4668);transition:width .2s}
 .bot-level{display:grid;gap:2px;font-size:9px;color:var(--muted)}
 .bot-level select{width:100%;min-width:0;border:1px solid var(--line);border-radius:8px;background:#0d1120;color:var(--text);padding:5px 4px;font-size:11px}
-@media (max-height:760px){
-  .duel-strip{min-height:44px;grid-template-columns:68px 1fr 72px}
-  .rival-panel{height:42px}
-  #rival-board{width:20px;height:40px}
-  .rival-meta{min-width:76px}
-  .duel-score strong{font-size:15px}
-}
-@media (min-width:700px){
-  .duel-strip{max-width:720px;width:100%;margin:0 auto}
-  .rival-panel{height:64px}
-  #rival-board{width:31px;height:62px}
-}
+@media (max-height:760px){.duel-strip{min-height:44px;grid-template-columns:68px 1fr 72px}.rival-panel{height:42px}#rival-board{width:20px;height:40px}.rival-meta{min-width:76px}.duel-score strong{font-size:15px}}
+@media (min-width:700px){.duel-strip{max-width:720px;width:100%;margin:0 auto}.rival-panel{height:64px}#rival-board{width:31px;height:62px}}
+
+/* WU04.1 round lifecycle, fast buttons, sound test */
+button{touch-action:manipulation}
+.controls button{touch-action:none;-webkit-touch-callout:none}
+.overlay button{touch-action:manipulation;min-height:48px}
+.duel-score{position:relative;flex-wrap:wrap}
+.duel-score small{width:100%;text-align:center;font-size:8px;color:var(--muted);line-height:1}
+.sound-test-button{width:100%;min-height:42px;background:#172238;border-color:#42608d;font-weight:700}
+.rival-panel[data-flash="win"],.rival-panel[data-flash="ko"]{animation:round-pulse .24s ease-out}
+@keyframes round-pulse{50%{transform:scale(1.04)}}
