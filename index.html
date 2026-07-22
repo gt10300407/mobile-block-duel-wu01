@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no" />
   <meta name="theme-color" content="#000000" />
   <link rel="icon" href="data:," />
-  <title>Block Duel WU02</title>
+  <title>Block Duel WU03</title>
   <link rel="stylesheet" href="./src/styles.css" />
 </head>
 <body>
@@ -29,7 +29,8 @@
 
       <div class="mini-stats" aria-label="게임 통계">
         <span>라인 <b id="lines">0</b></span>
-        <span>콤보 <b id="combo">0</b></span>
+        <span>레벨 <b id="level">1</b></span>
+        <span>B2B <b id="b2b">0</b></span>
       </div>
     </section>
 
@@ -37,6 +38,7 @@
       <section id="board-wrap" class="board-wrap" aria-label="게임 보드">
         <canvas id="board" width="300" height="600"></canvas>
         <div id="combo-pop" class="combo-pop" aria-live="polite"></div>
+        <div id="clear-flash" class="clear-flash" aria-hidden="true"></div>
         <div id="overlay" class="overlay hidden">
           <h1 id="overlay-title">일시정지</h1>
           <button id="resume-btn">계속</button>

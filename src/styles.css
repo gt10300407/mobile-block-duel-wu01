@@ -104,3 +104,10 @@ button:active{transform:scale(.96);background:#192134}
 .settings-note{margin:0;color:var(--muted);font-size:12px}
 .controls button.is-pressed{transform:scale(.96);background:#202b43;border-color:#52648d}
 @media(max-width:380px){.bottom-bar{grid-template-columns:auto auto minmax(0,1fr)}.bottom-bar button{padding:0 7px}.settings-panel{padding-left:12px;padding-right:12px}}
+
+/* WU03 라인 제거 피드백 */
+.clear-flash{position:absolute;inset:0;pointer-events:none;opacity:0;background:rgba(255,255,255,var(--flash-strength,.35));mix-blend-mode:screen}
+.clear-flash.show{animation:clear-flash .18s ease-out}
+@keyframes clear-flash{0%{opacity:.9}100%{opacity:0}}
+.combo-pop{z-index:3;max-width:94%;text-align:center;font-size:clamp(15px,4vw,22px)}
+.mini-stats{gap:1px}.mini-stats span{line-height:1.08}
