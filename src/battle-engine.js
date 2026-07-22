@@ -201,7 +201,7 @@ class LocalBotDuel {
   }
 
   flash(type) {
-    const panel = document.querySelector('.rival-panel');
+    const panel = document.querySelector('.rival-summary');
     if (!panel) return;
     panel.dataset.flash = type;
     clearTimeout(this.flashTimer);

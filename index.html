@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no" />
   <meta name="theme-color" content="#000000" />
   <link rel="icon" href="data:," />
-  <title>Block Duel WU04.2</title>
-  <link rel="stylesheet" href="./src/styles.css?v=042" />
+  <title>Block Duel WU04.3</title>
+  <link rel="stylesheet" href="./src/styles.css?v=043" />
 </head>
 <body>
   <main id="app" class="app-shell">
@@ -18,21 +18,33 @@
 
     <section class="battle-bar" aria-label="대전 현황">
       <div class="duel-score" aria-label="대전 점수">
-        <span class="you-label">나</span><strong id="duel-score">0 : 0</strong><span class="bot-label">봇</span>
+        <span>나</span><strong id="duel-score">0 : 0</strong><span>봇</span>
       </div>
-      <small id="duel-status">대전 중</small>
-      <label class="bot-level">난이도
+
+      <div class="rival-summary" aria-label="상대 상황">
+        <canvas id="rival-board" width="72" height="144" aria-label="상대 미니 보드"></canvas>
+        <div class="rival-summary-text">
+          <span>위험 <b id="rival-danger-value">0%</b></span>
+          <div id="rival-danger" class="rival-danger"><i></i></div>
+          <span>공격 준비 <b id="rival-pending">0</b>줄</span>
+        </div>
+      </div>
+
+      <label class="bot-level" aria-label="봇 난이도">
         <select id="bot-difficulty">
           <option value="easy">초급</option>
           <option value="normal">중급</option>
           <option value="hard">고급</option>
         </select>
       </label>
-      <div class="mini-stats" aria-label="게임 통계">
+
+      <div class="battle-mini-info">
         <span>제거 <b id="lines">0</b></span>
         <span>속도 <b id="level">1</b></span>
+        <span>대기 <b id="incoming-attack">0</b></span>
         <span class="sr-only">연속 강공 <b id="b2b">0</b></span>
       </div>
+      <small id="duel-status" class="sr-only">대전 중</small>
     </section>
 
     <section id="game-stage" class="game-stage">
@@ -40,11 +52,11 @@
         <aside class="player-rail" aria-label="내 블록 정보">
           <button id="hold-btn" class="rail-box hold-box" aria-label="블록 보관">
             <span>보관</span>
-            <canvas id="hold" width="58" height="48" aria-label="보관 블록"></canvas>
+            <canvas id="hold" width="64" height="52" aria-label="보관 블록"></canvas>
           </button>
           <div class="rail-box next-box">
             <span>다음</span>
-            <canvas id="next" width="58" height="174" aria-label="다음 블록 3개"></canvas>
+            <canvas id="next" width="64" height="204" aria-label="다음 블록 3개"></canvas>
           </div>
         </aside>
 
@@ -59,19 +71,6 @@
             <button id="restart-btn">다시 시작</button>
           </div>
         </section>
-
-        <aside class="rival-rail" aria-label="상대 정보">
-          <div class="rival-panel">
-            <span class="rail-title">상대</span>
-            <canvas id="rival-board" width="100" height="200" aria-label="상대 미니 보드"></canvas>
-            <div class="rival-meta">
-              <span>위험 <b id="rival-danger-value">0%</b></span>
-              <div id="rival-danger" class="rival-danger"><i></i></div>
-              <span>준비 <b id="rival-pending">0</b>줄</span>
-            </div>
-          </div>
-          <div class="incoming-box"><span>들어올 공격</span><strong id="incoming-attack">0</strong><small>줄</small></div>
-        </aside>
       </div>
     </section>
 
@@ -120,7 +119,7 @@
       </div>
     </section>
   </main>
-  <script type="module" src="./src/main.js?v=042"></script>
-  <script type="module" src="./src/battle-engine.js?v=042"></script>
+  <script type="module" src="./src/main.js?v=043"></script>
+  <script type="module" src="./src/battle-engine.js?v=043"></script>
 </body>
 </html>

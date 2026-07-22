@@ -1,13 +1,14 @@
-import {Bag,COLORS,COLS,ROWS,HIDDEN_ROWS,createBoard,makePiece,collides,mergePiece,clearLines,rotateMatrix,scoreFor,attackFor,isPerfectClear,isTSpin,ghostY} from './game-core.js?v=042';
-import {classifyGesture,getSwipePreset,resolveAxis,stepsFromDistance} from './input-utils.js?v=042';
-import {getAudioStatus,isSoundSupported,playSound,setSoundEnabled,unlockAudio} from './audio-engine.js?v=042';
+import {Bag,COLORS,COLS,ROWS,HIDDEN_ROWS,createBoard,makePiece,collides,mergePiece,clearLines,rotateMatrix,scoreFor,attackFor,isPerfectClear,isTSpin,ghostY} from './game-core.js?v=043';
+import {classifyGesture,getSwipePreset,resolveAxis,stepsFromDistance} from './input-utils.js?v=043';
+import {getAudioStatus,isSoundSupported,playSound,setSoundEnabled,unlockAudio} from './audio-engine.js?v=043';
+import {verticalPreviewRects,fitBoardWidth} from './layout-utils.js?v=043';
 
 const $=s=>document.querySelector(s);
 const boardCanvas=$('#board'),ctx=boardCanvas.getContext('2d');
 const holdCanvas=$('#hold'),hctx=holdCanvas.getContext('2d');
 const nextCanvas=$('#next'),nctx=nextCanvas.getContext('2d');
 const wrap=$('#board-wrap');
-const SETTINGS_KEY='block-duel-wu042-settings';
+const SETTINGS_KEY='block-duel-wu043-settings';
 const WEB_VIBRATE_SUPPORTED=typeof navigator.vibrate==='function';
 const NATIVE_HAPTICS=globalThis.Capacitor?.Plugins?.Haptics||null;
 const HAPTIC_SUPPORTED=Boolean(NATIVE_HAPTICS||WEB_VIBRATE_SUPPORTED);
@@ -166,8 +167,28 @@ function drawBoard(){
   state.piece.matrix.forEach((r,y)=>r.forEach((v,x)=>{if(v&&gy+y>=HIDDEN_ROWS)drawCell(state.piece.type,state.piece.x+x,gy+y-HIDDEN_ROWS,cell,.18);}));
   state.piece.matrix.forEach((r,y)=>r.forEach((v,x)=>{if(v&&state.piece.y+y>=HIDDEN_ROWS)drawCell(state.piece.type,state.piece.x+x,state.piece.y+y-HIDDEN_ROWS,cell);}));
 }
-function drawPreview(context,canvas,type,slot=0,slotWidth=canvas.width){if(!type)return;const m=makePiece(type).matrix;const size=Math.min(15,Math.floor((slotWidth-8)/Math.max(4,m[0].length)),Math.floor((canvas.height-8)/Math.max(4,m.length)));const blockW=m[0].length*size,blockH=m.length*size;const ox=slot*slotWidth+(slotWidth-blockW)/2,oy=(canvas.height-blockH)/2;m.forEach((r,y)=>r.forEach((v,x)=>{if(v){context.fillStyle=COLORS[type];context.fillRect(ox+x*size+1,oy+y*size+1,size-2,size-2);}}));}
-function drawAll(){drawBoard();hctx.clearRect(0,0,holdCanvas.width,holdCanvas.height);if(state.hold)drawPreview(hctx,holdCanvas,state.hold,0,holdCanvas.width);nctx.clearRect(0,0,nextCanvas.width,nextCanvas.height);const slot=nextCanvas.width/3;state.queue.slice(0,3).forEach((t,i)=>drawPreview(nctx,nextCanvas,t,i,slot));}
+function drawPreview(context,canvas,type,rect={x:0,y:0,w:canvas.width,h:canvas.height}){
+  if(!type)return;
+  const m=makePiece(type).matrix;
+  const size=Math.max(5,Math.min(16,
+    Math.floor((rect.w-8)/Math.max(4,m[0].length)),
+    Math.floor((rect.h-8)/Math.max(4,m.length))
+  ));
+  const blockW=m[0].length*size,blockH=m.length*size;
+  const ox=rect.x+(rect.w-blockW)/2,oy=rect.y+(rect.h-blockH)/2;
+  m.forEach((r,y)=>r.forEach((v,x)=>{if(v){
+    context.fillStyle=COLORS[type];
+    context.fillRect(Math.round(ox+x*size)+1,Math.round(oy+y*size)+1,size-2,size-2);
+  }}));
+}
+function drawAll(){
+  drawBoard();
+  hctx.clearRect(0,0,holdCanvas.width,holdCanvas.height);
+  if(state.hold)drawPreview(hctx,holdCanvas,state.hold);
+  nctx.clearRect(0,0,nextCanvas.width,nextCanvas.height);
+  const rects=verticalPreviewRects(nextCanvas.width,nextCanvas.height,3);
+  state.queue.slice(0,3).forEach((t,i)=>drawPreview(nctx,nextCanvas,t,rects[i]));
+}
 function action(name){return ({left:()=>move(-1,0),right:()=>move(1,0),soft,rotate,hard,hold}[name]||(()=>false))();}
 
 const activePresses=new Map();
@@ -243,7 +264,19 @@ $('#shake-toggle').addEventListener('change',e=>{settings.shake=e.target.checked
 
 function loop(now){const dt=Math.min(100,now-state.last);state.last=now;processHeldPresses(now);if(!state.paused&&!state.over&&!state.roundWon){state.elapsed+=dt/1000;state.dropAcc+=dt;if(state.dropAcc>=state.dropMs){state.dropAcc=0;if(!move(0,1))lock();}updateHud();}requestAnimationFrame(loop);}
 function updateViewportHeight(){const height=window.visualViewport?.height||window.innerHeight;document.documentElement.style.setProperty('--app-height',`${Math.round(height)}px`);}
-function resizeBoard(){const stage=$('#game-stage'),r=stage.getBoundingClientRect();if(!r.width||!r.height)return;const availableWidth=Math.max(0,r.width-4),availableHeight=Math.max(0,r.height-6),tabletLimit=window.innerWidth>=700?420:360;const width=Math.max(120,Math.floor(Math.min(availableWidth,availableHeight/2,tabletLimit)));wrap.style.width=`${width}px`;wrap.style.height=`${width*2}px`;}
+function resizeBoard(){
+  const grid=$('.mobile-play-grid'),rail=$('.player-rail');
+  if(!grid||!rail)return;
+  const r=grid.getBoundingClientRect();
+  const railRect=rail.getBoundingClientRect();
+  if(!r.width||!r.height)return;
+  const styles=getComputedStyle(grid);
+  const gap=parseFloat(styles.columnGap)||0;
+  const tabletLimit=window.innerWidth>=700?440:390;
+  const width=fitBoardWidth({gridWidth:r.width,gridHeight:r.height,railWidth:railRect.width,gap,limit:tabletLimit});
+  wrap.style.width=`${width}px`;
+  wrap.style.height=`${width*2}px`;
+}
 const resizeObserver=new ResizeObserver(resizeBoard);resizeObserver.observe($('#game-stage'));
 const refreshLayout=()=>{updateViewportHeight();requestAnimationFrame(resizeBoard);};
 window.visualViewport?.addEventListener('resize',refreshLayout);window.visualViewport?.addEventListener('scroll',refreshLayout);window.addEventListener('orientationchange',()=>setTimeout(refreshLayout,160));window.addEventListener('resize',refreshLayout);

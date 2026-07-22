@@ -174,3 +174,124 @@ button{touch-action:manipulation}
 @media (min-width:700px){
   .mobile-play-grid{max-width:650px;grid-template-columns:92px minmax(0,420px) 92px;gap:12px}.hold-box{height:94px}.next-box{height:286px}.rival-panel{height:300px}#rival-board{width:62px;height:124px}.incoming-box{height:84px}
 }
+
+
+/* WU04.3 — mobile layout repair: visible vertical NEXT and wider board */
+.app-shell{
+  grid-template-rows:auto auto minmax(0,1fr) auto auto;
+  gap:5px;
+}
+.battle-bar{
+  min-height:58px;
+  display:grid;
+  grid-template-columns:minmax(82px,.8fr) minmax(142px,1.35fr) 70px minmax(66px,.7fr);
+  align-items:center;
+  gap:6px;
+  padding:0 4px;
+  overflow:hidden;
+}
+.duel-score{
+  display:grid;
+  grid-template-columns:auto auto auto;
+  justify-content:center;
+  align-items:center;
+  gap:6px;
+  min-width:0;
+  white-space:nowrap;
+}
+.duel-score span{font-size:10px;color:var(--muted);white-space:nowrap}
+.duel-score strong{font-size:19px;line-height:1;white-space:nowrap}
+.rival-summary{
+  height:54px;
+  display:grid;
+  grid-template-columns:27px minmax(0,1fr);
+  align-items:center;
+  gap:6px;
+  padding:2px 7px 2px 4px;
+  border:1px solid #3b2148;
+  border-radius:11px;
+  background:#08070e;
+  overflow:hidden;
+}
+#rival-board{width:27px;height:54px;display:block;image-rendering:pixelated}
+.rival-summary-text{min-width:0;display:grid;gap:2px;font-size:8px;color:var(--muted);white-space:nowrap}
+.rival-summary-text b{font-size:10px;color:var(--text)}
+.rival-danger{--danger:0%;height:5px;overflow:hidden;border-radius:99px;background:#1a1d28}
+.rival-danger i{display:block;width:var(--danger);height:100%;background:linear-gradient(90deg,#48e878,#ffe348,#ff4668);transition:width .2s}
+.bot-level{display:block;min-width:0}
+.bot-level select{width:100%;height:34px;padding:0 5px;font-size:11px}
+.battle-mini-info{
+  height:42px;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  align-content:center;
+  gap:3px 5px;
+  padding:4px 6px;
+  border:1px solid #27304a;
+  border-radius:10px;
+  background:#060910;
+  font-size:8px;
+  color:var(--muted);
+  white-space:nowrap;
+}
+.battle-mini-info span{display:flex;align-items:center;justify-content:space-between;gap:3px}
+.battle-mini-info b{font-size:12px;color:var(--text)}
+.game-stage{padding:0;overflow:hidden;display:flex;align-items:stretch;justify-content:center}
+.mobile-play-grid{
+  width:100%;height:100%;
+  display:grid;
+  grid-template-columns:58px minmax(0,1fr);
+  gap:6px;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+}
+.player-rail{
+  height:100%;min-height:0;
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-end;
+  gap:7px;
+  padding-bottom:10%;
+}
+.rail-box{
+  width:100%;
+  position:relative;
+  padding:17px 2px 3px;
+  border:1px solid #27304a;
+  border-radius:10px;
+  background:#060910;
+  overflow:hidden;
+}
+.rail-box>span{position:absolute;top:5px;left:0;right:0;text-align:center;font-size:9px;color:var(--muted);line-height:1}
+.rail-box canvas{display:block;width:100%;height:100%;image-rendering:pixelated}
+.hold-box{height:62px;flex:none}
+.next-box{height:214px;flex:none}
+.next-box canvas{opacity:1;visibility:visible}
+.board-wrap{max-width:100%;max-height:100%;justify-self:center}
+.rival-rail,.incoming-box,.rival-panel{display:none!important}
+.attack-pop{top:8%;min-width:68%;max-width:92%}
+@media (max-width:390px){
+  .battle-bar{grid-template-columns:78px minmax(132px,1.25fr) 66px;gap:4px;padding:0 2px}
+  .battle-mini-info{display:none}
+  .duel-score{gap:4px}.duel-score strong{font-size:18px}
+  .rival-summary{grid-template-columns:24px minmax(0,1fr);gap:4px;padding-left:3px;padding-right:5px}
+  #rival-board{width:24px;height:48px}
+  .mobile-play-grid{grid-template-columns:52px minmax(0,1fr);gap:4px}
+  .hold-box{height:58px}.next-box{height:194px}
+}
+@media (max-height:760px){
+  .battle-bar{min-height:48px}.rival-summary{height:46px}#rival-board{width:22px;height:44px}
+  .battle-mini-info{height:38px}.bot-level select{height:31px}
+  .player-rail{padding-bottom:5%;gap:5px}.hold-box{height:54px}.next-box{height:174px}
+}
+@media (min-width:700px){
+  .battle-bar{max-width:720px;width:100%;margin:0 auto;grid-template-columns:110px 210px 92px 120px;gap:10px}
+  .mobile-play-grid{max-width:590px;grid-template-columns:84px minmax(0,440px);gap:12px}
+  .hold-box{height:84px}.next-box{height:286px}.player-rail{padding-bottom:8%}
+}
+
+.rival-summary[data-flash="attack"]{border-color:#ff4668;transform:translateX(-2px)}
+.rival-summary[data-flash="hit"]{border-color:#29d8ff;transform:translateX(2px)}
+.rival-summary[data-flash="ko"]{border-color:#ffe348;transform:scale(1.02)}
+.rival-summary[data-flash="win"]{border-color:#48e878}
