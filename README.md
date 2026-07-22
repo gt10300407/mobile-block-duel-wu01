@@ -1,15 +1,26 @@
-# Mobile Block Duel — WU01
+# Block Duel WU02
 
-모바일·태블릿 세로 화면 전용 1인 플레이 기본판.
+모바일·태블릿 터치 전용 1인 블록 게임 조작 정밀화 버전.
 
-## 포함
+## WU02 변경사항
 
-- 10×20 보드, 7-bag, HOLD, NEXT 3개, 고스트, 줄 제거
-- 버튼 모드 5개 입력
-- 스와이프 모드
-- 점수·라인·콤보
-- 진동 및 보드 흔들림
-- 모바일/태블릿 화면 크기에 맞춘 동적 보드 리사이즈
+- 버튼 모드 5버튼 멀티터치
+- 좌우 DAS/ARR 반복 입력 개선
+- 소프트드롭 길게 누르기 개선
+- 스와이프 축 잠금
+- 민감도 낮음/보통/높음
+- 아래 드래그 후 하드드롭 오작동 차단
+- 빠른 아래 플릭만 하드드롭 처리
+- 위 스와이프 HOLD, 탭 회전
+- 진동 및 화면 흔들림 설정
+- 설정 자동 저장
+- iPhone/Android/태블릿 반응형 유지
+
+## 테스트
+
+```bash
+npm test
+```
 
 ## 로컬 실행
 
@@ -17,31 +28,6 @@
 bash run_mobile_preview.sh
 ```
 
-브라우저: `http://localhost:8080`
-
 ## GitHub Pages 배포
 
-GitHub CLI 로그인을 먼저 확인한다.
-
-```bash
-gh auth login
-bash deploy_github_pages.sh
-```
-
-기본 공개 주소:
-
-```text
-https://gt10300407.github.io/mobile-block-duel-wu01/
-```
-
-다른 저장소 이름:
-
-```bash
-bash deploy_github_pages.sh 원하는-저장소명
-```
-
-## 테스트
-
-```bash
-npm test
-```
+동봉된 `UPDATE_AND_DEPLOY_WU02.command`를 Downloads에서 실행한다.

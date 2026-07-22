@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no" />
   <meta name="theme-color" content="#000000" />
   <link rel="icon" href="data:," />
-  <title>Block Duel WU01</title>
+  <title>Block Duel WU02</title>
   <link rel="stylesheet" href="./src/styles.css" />
 </head>
 <body>
@@ -55,8 +55,37 @@
 
     <footer class="bottom-bar">
       <button id="mode-btn">스와이프 전환</button>
+      <button id="settings-btn" class="settings-button" aria-label="조작 설정">조작 설정</button>
       <span id="hint">버튼 조작</span>
     </footer>
+
+    <section id="settings-sheet" class="settings-sheet hidden" aria-label="조작 설정">
+      <div class="settings-backdrop" data-close-settings></div>
+      <div class="settings-panel" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+        <div class="settings-head">
+          <h2 id="settings-title">조작 설정</h2>
+          <button id="settings-close" aria-label="설정 닫기">✕</button>
+        </div>
+        <label>
+          기본 조작
+          <select id="mode-select">
+            <option value="buttons">버튼 모드</option>
+            <option value="swipe">스와이프 모드</option>
+          </select>
+        </label>
+        <label>
+          스와이프 민감도
+          <select id="sensitivity-select">
+            <option value="low">낮음</option>
+            <option value="normal">보통</option>
+            <option value="high">높음</option>
+          </select>
+        </label>
+        <label class="switch-row"><span>진동</span><input id="haptic-toggle" type="checkbox" checked /></label>
+        <label class="switch-row"><span>화면 흔들림</span><input id="shake-toggle" type="checkbox" checked /></label>
+        <p class="settings-note">설정은 이 기기에 자동 저장돼.</p>
+      </div>
+    </section>
   </main>
   <script type="module" src="./src/main.js"></script>
 </body>
