@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no" />
   <meta name="theme-color" content="#000000" />
   <link rel="icon" href="data:," />
-  <title>Block Duel WU03.1</title>
-  <link rel="stylesheet" href="./src/styles.css?v=031" />
+  <title>Block Duel WU04</title>
+  <link rel="stylesheet" href="./src/styles.css?v=040" />
 </head>
 <body>
   <main id="app" class="app-shell">
@@ -34,7 +34,25 @@
       </div>
     </section>
 
-    <section id="game-stage" class="game-stage">
+    <section class="duel-strip" aria-label="로컬 봇 대전 정보">
+  <div class="duel-score"><span>YOU</span><strong id="duel-score">0 : 0</strong><span>BOT</span></div>
+  <div class="rival-panel">
+    <canvas id="rival-board" width="100" height="200" aria-label="상대 미니 보드"></canvas>
+    <div class="rival-meta">
+      <span>상대 위험 <b id="rival-danger-value">0%</b></span>
+      <div id="rival-danger" class="rival-danger"><i></i></div>
+      <span>공격 준비 <b id="rival-pending">0</b></span>
+    </div>
+  </div>
+  <label class="bot-level">BOT
+    <select id="bot-difficulty">
+      <option value="easy">초급</option>
+      <option value="normal">중급</option>
+      <option value="hard">고급</option>
+    </select>
+  </label>
+</section>
+<section id="game-stage" class="game-stage">
       <section id="board-wrap" class="board-wrap" aria-label="게임 보드">
         <canvas id="board" width="300" height="600"></canvas>
         <div id="combo-pop" class="combo-pop" aria-live="polite"></div>
@@ -91,6 +109,7 @@
       </div>
     </section>
   </main>
-  <script type="module" src="./src/main.js?v=031"></script>
+  <script type="module" src="./src/main.js?v=040"></script>
+  <script type="module" src="./src/battle-engine.js?v=040"></script>
 </body>
 </html>

@@ -1,13 +1,13 @@
-import {Bag,COLORS,COLS,ROWS,HIDDEN_ROWS,createBoard,makePiece,collides,mergePiece,clearLines,rotateMatrix,scoreFor,attackFor,isPerfectClear,isTSpin,ghostY} from './game-core.js?v=031';
-import {classifyGesture,getSwipePreset,resolveAxis,stepsFromDistance} from './input-utils.js?v=031';
-import {isSoundSupported,playSound,setSoundEnabled,unlockAudio} from './audio-engine.js?v=031';
+import {Bag,COLORS,COLS,ROWS,HIDDEN_ROWS,createBoard,makePiece,collides,mergePiece,clearLines,rotateMatrix,scoreFor,attackFor,isPerfectClear,isTSpin,ghostY} from './game-core.js?v=040';
+import {classifyGesture,getSwipePreset,resolveAxis,stepsFromDistance} from './input-utils.js?v=040';
+import {isSoundSupported,playSound,setSoundEnabled,unlockAudio} from './audio-engine.js?v=040';
 
 const $=s=>document.querySelector(s);
 const boardCanvas=$('#board'),ctx=boardCanvas.getContext('2d');
 const holdCanvas=$('#hold'),hctx=holdCanvas.getContext('2d');
 const nextCanvas=$('#next'),nctx=nextCanvas.getContext('2d');
 const wrap=$('#board-wrap');
-const SETTINGS_KEY='block-duel-wu031-settings';
+const SETTINGS_KEY='block-duel-wu04-settings';
 const WEB_HAPTIC_SUPPORTED=typeof navigator.vibrate==='function';
 const defaults={mode:'buttons',sensitivity:'normal',sound:true,haptic:true,shake:true};
 let settings=loadSettings();
@@ -35,6 +35,7 @@ function spawn(){
     state.over=true;
     showOverlay('게임 오버');
     void playSound('gameOver');
+  window.dispatchEvent(new CustomEvent('playergameover'));
   }
   drawAll();
 }
@@ -101,7 +102,9 @@ function lock(strong=false){
   if(lines>0){
     state.combo++;
     state.score+=scoreFor(lines,state.combo,{tSpin,b2b:b2bBonus,perfectClear,level:state.level});
-    state.attack+=attackFor(lines,state.combo,{tSpin,b2b:b2bBonus,perfectClear});
+    const sentAttack=attackFor(lines,state.combo,{tSpin,b2b:b2bBonus,perfectClear});
+  state.attack+=sentAttack;
+  if(sentAttack>0)window.dispatchEvent(new CustomEvent('playerattack',{detail:{amount:sentAttack}}));
     state.lines+=lines;
     if(difficult)state.b2b++;else state.b2b=0;
     state.level=1+Math.floor(state.lines/10);
@@ -118,6 +121,35 @@ function lock(strong=false){
   spawn();
   updateHud();
 }
+
+function addIncomingGarbage(amount){
+  if(state.paused||state.over)return;
+  const count=Math.max(0,Math.min(12,Number(amount)||0));
+  if(!count)return;
+  let overflow=false;
+  for(let i=0;i<count;i++){
+    const removed=state.board.shift();
+    if(removed?.some(Boolean))overflow=true;
+    const hole=(Date.now()+i*3)%COLS;
+    state.board.push(Array.from({length:COLS},(_,x)=>x===hole?0:8));
+  }
+  effect(count>=4?'strong':'small');
+  haptic(count>=4?'heavy':'medium');
+  if(overflow||collides(state.board,state.piece,0,0)){
+    state.over=true;
+    showOverlay('KO');
+    void playSound('gameOver');
+    window.dispatchEvent(new CustomEvent('playergameover'));
+  }
+  drawAll();
+}
+window.addEventListener('botattack',event=>addIncomingGarbage(event.detail?.amount));
+window.addEventListener('botko',()=>{
+  const el=$('#combo-pop');
+  el.textContent='BOT KO';
+  setTimeout(()=>{if(el.textContent==='BOT KO')el.textContent='';},900);
+});
+
 function showClearLabel({lines,tSpin,perfectClear,b2b}){
   const el=$('#combo-pop');
   let title=perfectClear?'PERFECT CLEAR':tSpin?`T-SPIN${lines?` ${lines}`:''}`:lines===4?'QUAD':`${lines} LINE`;
