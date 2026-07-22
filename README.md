@@ -1,14 +1,10 @@
-# Mobile Block Duel WU04.1
+# Mobile Block Duel WU04.2
 
-긴급 안정화 수정본.
+모바일 전투 UI와 쉬운 한국어 용어 개편.
 
-- 게임 종료 시 봇 즉시 정지
-- 다음 라운드와 전체 재시작 분리
-- 버튼 길게 누르기 DAS/ARR 반복 이동
-- iOS Web Audio 잠금 해제 및 소리 테스트
-- iPhone Safari 진동 미지원 명시
-- 봇의 무조건 공격 제거 및 공격 속도 완화
-
-```bash
-npm test
-```
+- NEXT/HOLD를 보드 왼쪽 가까이 세로 배치
+- 상대 보드를 오른쪽 레일에 배치
+- 대전 점수 한 줄 고정
+- T-Spin/B2B/Perfect Clear/Combo 노출 제거
+- 회전 기술/강한 제거 연속/완전 제거/연속 제거로 표시
+- 공격 발생 시 이유와 전송 줄 수 표시

@@ -136,3 +136,41 @@ button{touch-action:manipulation}
 .sound-test-button{width:100%;min-height:42px;background:#172238;border-color:#42608d;font-weight:700}
 .rival-panel[data-flash="win"],.rival-panel[data-flash="ko"]{animation:round-pulse .24s ease-out}
 @keyframes round-pulse{50%{transform:scale(1.04)}}
+
+
+/* WU04.2 mobile-first Korean battle UI */
+.sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
+.app-shell{grid-template-rows:auto auto minmax(0,1fr) auto auto;gap:5px}
+.battle-bar{display:grid;grid-template-columns:minmax(110px,1fr) auto minmax(86px,auto) minmax(72px,auto);align-items:center;gap:7px;min-height:44px;padding:0 6px}
+.duel-score{display:grid;grid-template-columns:auto auto auto;align-items:center;justify-content:start;gap:7px;white-space:nowrap;flex-wrap:nowrap;position:static}
+.duel-score span{font-size:11px;color:var(--muted)}
+.duel-score strong{font-size:20px;line-height:1;white-space:nowrap}
+#duel-status{font-size:9px;color:var(--muted);white-space:nowrap}
+.bot-level{display:flex;align-items:center;gap:4px;white-space:nowrap;font-size:9px;color:var(--muted)}
+.bot-level select{width:68px;height:30px;padding:0 5px}
+.battle-bar .mini-stats{display:flex;align-items:center;gap:8px;height:32px;padding:2px 7px;border-radius:9px}
+.battle-bar .mini-stats span{border:0;font-size:9px;gap:4px}.battle-bar .mini-stats b{font-size:14px}
+.preview-strip,.duel-strip{display:none!important}
+.game-stage{padding:0;overflow:hidden;display:flex;align-items:stretch;justify-content:center}
+.mobile-play-grid{width:100%;height:100%;display:grid;grid-template-columns:56px minmax(0,1fr) 58px;gap:5px;align-items:center;justify-content:center;overflow:hidden}
+.player-rail,.rival-rail{height:100%;min-height:0;display:flex;flex-direction:column;align-items:stretch;justify-content:center;gap:6px}
+.rail-box,.rival-panel,.incoming-box{border:1px solid #27304a;border-radius:10px;background:#060910;overflow:hidden}
+.rail-box{position:relative;padding:18px 2px 2px;display:flex;align-items:center;justify-content:center}
+.rail-box>span,.rail-title{position:absolute;top:5px;left:0;right:0;text-align:center;font-size:9px;color:var(--muted);line-height:1}
+.hold-box{height:66px}.next-box{height:196px}
+.rail-box canvas{display:block;width:100%;height:100%;image-rendering:pixelated}
+.board-wrap{max-width:100%;max-height:100%}
+.rival-panel{position:relative;height:220px;padding:20px 3px 5px;display:flex;flex-direction:column;align-items:center;gap:4px;transform:none!important}
+#rival-board{width:42px;height:84px;flex:none}
+.rival-meta{width:100%;min-width:0;font-size:8px;text-align:center;gap:3px}
+.incoming-box{height:66px;display:grid;grid-template-columns:1fr auto;align-items:center;padding:7px 3px;text-align:center}
+.incoming-box span{grid-column:1/-1;font-size:8px;color:var(--muted)}.incoming-box strong{font-size:22px}.incoming-box small{font-size:9px;color:var(--muted)}
+.attack-pop{position:absolute;left:50%;top:12%;transform:translateX(-50%);z-index:4;min-width:72%;max-width:94%;padding:8px 10px;border:1px solid #29d8ff;border-radius:10px;background:rgba(3,8,16,.92);text-align:center;pointer-events:none;display:grid;gap:2px}
+.attack-pop:empty{display:none}.attack-pop strong{font-size:14px}.attack-pop small{font-size:9px;color:#b8c5dd}.attack-pop[data-type="receive"]{border-color:#ff4668}.attack-pop[data-type="receive"] strong{color:#ff6b86}
+@media (max-width:380px){
+  .battle-bar{grid-template-columns:minmax(100px,1fr) auto minmax(78px,auto);gap:4px;padding:0 2px}.battle-bar .mini-stats{display:none}.duel-score strong{font-size:18px}.duel-score span{font-size:10px}.bot-level select{width:62px}
+  .mobile-play-grid{grid-template-columns:50px minmax(0,1fr) 52px;gap:3px}.hold-box{height:60px}.next-box{height:174px}.rival-panel{height:194px}#rival-board{width:36px;height:72px}.incoming-box{height:58px}
+}
+@media (min-width:700px){
+  .mobile-play-grid{max-width:650px;grid-template-columns:92px minmax(0,420px) 92px;gap:12px}.hold-box{height:94px}.next-box{height:286px}.rival-panel{height:300px}#rival-board{width:62px;height:124px}.incoming-box{height:84px}
+}

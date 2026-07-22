@@ -111,7 +111,7 @@ class LocalBotDuel {
       this.botScore += 1;
       this.updateScore();
       this.flash('win');
-      this.setRoundStatus('라운드 종료');
+      this.setRoundStatus('봇이 라운드 승리');
     });
 
     window.addEventListener('playerroundstart', () => {
@@ -165,7 +165,7 @@ class LocalBotDuel {
         const amount = Math.min(p.maxAttack, this.pending);
         this.pending -= amount;
         this.lastBotAttack = now;
-        window.dispatchEvent(new CustomEvent('botattack', { detail: { amount } }));
+        window.dispatchEvent(new CustomEvent('botattack', { detail: { amount, reason: `봇이 줄을 제거해 ${amount}줄 공격` } }));
         this.flash('attack');
         this.render();
       }
@@ -179,7 +179,7 @@ class LocalBotDuel {
     this.playerScore += 1;
     this.updateScore();
     this.flash('ko');
-    this.setRoundStatus('상대 KO');
+    this.setRoundStatus('내가 라운드 승리');
     window.dispatchEvent(new CustomEvent('botko'));
   }
 

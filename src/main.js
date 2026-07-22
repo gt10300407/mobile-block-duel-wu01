@@ -1,13 +1,13 @@
-import {Bag,COLORS,COLS,ROWS,HIDDEN_ROWS,createBoard,makePiece,collides,mergePiece,clearLines,rotateMatrix,scoreFor,attackFor,isPerfectClear,isTSpin,ghostY} from './game-core.js?v=041';
-import {classifyGesture,getSwipePreset,resolveAxis,stepsFromDistance} from './input-utils.js?v=041';
-import {getAudioStatus,isSoundSupported,playSound,setSoundEnabled,unlockAudio} from './audio-engine.js?v=041';
+import {Bag,COLORS,COLS,ROWS,HIDDEN_ROWS,createBoard,makePiece,collides,mergePiece,clearLines,rotateMatrix,scoreFor,attackFor,isPerfectClear,isTSpin,ghostY} from './game-core.js?v=042';
+import {classifyGesture,getSwipePreset,resolveAxis,stepsFromDistance} from './input-utils.js?v=042';
+import {getAudioStatus,isSoundSupported,playSound,setSoundEnabled,unlockAudio} from './audio-engine.js?v=042';
 
 const $=s=>document.querySelector(s);
 const boardCanvas=$('#board'),ctx=boardCanvas.getContext('2d');
 const holdCanvas=$('#hold'),hctx=holdCanvas.getContext('2d');
 const nextCanvas=$('#next'),nctx=nextCanvas.getContext('2d');
 const wrap=$('#board-wrap');
-const SETTINGS_KEY='block-duel-wu041-settings';
+const SETTINGS_KEY='block-duel-wu042-settings';
 const WEB_VIBRATE_SUPPORTED=typeof navigator.vibrate==='function';
 const NATIVE_HAPTICS=globalThis.Capacitor?.Plugins?.Haptics||null;
 const HAPTIC_SUPPORTED=Boolean(NATIVE_HAPTICS||WEB_VIBRATE_SUPPORTED);
@@ -25,7 +25,7 @@ const state=freshState();
 
 function loadSettings(){
   try{
-    const prior=JSON.parse(localStorage.getItem('block-duel-wu04-settings')||'{}');
+    const prior=JSON.parse(localStorage.getItem('block-duel-wu041-settings')||'{}');
     const current=JSON.parse(localStorage.getItem(SETTINGS_KEY)||'{}');
     return {...defaults,...prior,...current,sound:current.sound??prior.sound??true};
   }catch{return {...defaults}}
@@ -80,7 +80,11 @@ function lock(strong=false){
     state.score+=scoreFor(lines,state.combo,{tSpin,b2b:b2bBonus,perfectClear,level:state.level});
     const sentAttack=attackFor(lines,state.combo,{tSpin,b2b:b2bBonus,perfectClear});
     state.attack+=sentAttack;
-    if(sentAttack>0)window.dispatchEvent(new CustomEvent('playerattack',{detail:{amount:sentAttack}}));
+    if(sentAttack>0){
+      const reason=attackReason({lines,tSpin,perfectClear,b2b:b2bBonus,combo:state.combo,amount:sentAttack});
+      window.dispatchEvent(new CustomEvent('playerattack',{detail:{amount:sentAttack,reason}}));
+      showAttackNotice(`상대에게 ${sentAttack}줄 공격`,reason,'send');
+    }
     state.lines+=lines;if(difficult)state.b2b++;else state.b2b=0;state.level=1+Math.floor(state.lines/10);
     showClearLabel({lines,tSpin,perfectClear,b2b:b2bBonus});lineFlash(lines);effect(lines>=4||perfectClear?'strong':'small');haptic(lines>=4||perfectClear?'heavy':'medium');void playSound(perfectClear?'perfect':`line${Math.min(4,lines)}`);
   }else state.combo=-1;
@@ -88,6 +92,8 @@ function lock(strong=false){
   state.dropMs=Math.max(90,700-(state.level-1)*58);spawn();updateHud();
 }
 function addIncomingGarbage(amount){
+  const incomingEl=$('#incoming-attack');if(incomingEl)incomingEl.textContent=String(Math.max(0,Number(amount)||0));
+  showAttackNotice(`상대 공격 ${Math.max(0,Number(amount)||0)}줄`,'방해 블록이 아래에서 올라와','receive');
   if(state.paused||state.over||state.roundWon)return;
   const count=Math.max(0,Math.min(4,Number(amount)||0));if(!count)return;
   let overflow=false;
@@ -98,6 +104,7 @@ function addIncomingGarbage(amount){
   effect(count>=3?'strong':'small');haptic(count>=3?'heavy':'medium');
   if(overflow||collides(state.board,state.piece,0,0)){finishPlayerRound('KO');}
   drawAll();
+  setTimeout(()=>{if(incomingEl)incomingEl.textContent='0';},900);
 }
 window.addEventListener('botattack',event=>addIncomingGarbage(event.detail?.amount));
 window.addEventListener('botko',()=>{
@@ -108,7 +115,28 @@ window.addEventListener('botko',()=>{
   setTimeout(()=>{if(el.textContent==='BOT KO')el.textContent='';},900);
 });
 
-function showClearLabel({lines,tSpin,perfectClear,b2b}){const el=$('#combo-pop');let title=perfectClear?'PERFECT CLEAR':tSpin?`T-SPIN${lines?` ${lines}`:''}`:lines===4?'QUAD':`${lines} LINE`;if(b2b)title=`B2B · ${title}`;if(state.combo>0)title+=` · COMBO ×${state.combo}`;el.textContent=title;setTimeout(()=>{el.textContent='';},850);}
+function attackReason({lines,tSpin,perfectClear,b2b,combo,amount}){
+  const reasons=[];
+  if(perfectClear)reasons.push('보드를 완전히 비움');
+  else if(tSpin)reasons.push('회전 기술 성공');
+  else if(lines===4)reasons.push('4줄 동시 제거');
+  else reasons.push(`${lines}줄 제거`);
+  if(b2b)reasons.push('강한 제거 연속');
+  if(combo>0)reasons.push(`${combo+1}회 연속 제거`);
+  return `${reasons.join(' · ')} → ${amount}줄`;
+}
+function showAttackNotice(title,detail,type='send'){
+  const el=$('#attack-pop');if(!el)return;
+  el.dataset.type=type;el.innerHTML=`<strong>${title}</strong><small>${detail}</small>`;
+  clearTimeout(showAttackNotice.timer);showAttackNotice.timer=setTimeout(()=>{el.textContent='';delete el.dataset.type;},1400);
+}
+function showClearLabel({lines,tSpin,perfectClear,b2b}){
+  const el=$('#combo-pop');
+  let title=perfectClear?'완전 제거!':tSpin?'회전 기술!':lines===4?'4줄 제거!':`${lines}줄 제거`;
+  if(b2b)title=`강한 제거 연속! · ${title}`;
+  if(state.combo>0)title+=` · ${state.combo+1}회 연속`;
+  el.textContent=title;setTimeout(()=>{el.textContent='';},900);
+}
 function lineFlash(lines){const el=$('#clear-flash');el.style.setProperty('--flash-strength',String(Math.min(1,.32+lines*.14)));el.classList.remove('show');void el.offsetWidth;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),180);}
 function effect(level){if(!settings.shake)return;wrap.classList.remove('shake-small','shake-strong');void wrap.offsetWidth;wrap.classList.add(level==='strong'?'shake-strong':'shake-small');setTimeout(()=>wrap.classList.remove('shake-small','shake-strong'),240);}
 async function haptic(level){
