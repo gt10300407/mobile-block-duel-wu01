@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no" />
   <meta name="theme-color" content="#000000" />
   <link rel="icon" href="data:," />
-  <title>Block Duel WU04.3</title>
-  <link rel="stylesheet" href="./src/styles.css?v=043" />
+  <title>Block Duel WU06</title>
+  <link rel="stylesheet" href="./src/styles.css?v=060" />
 </head>
 <body>
   <main id="app" class="app-shell">
@@ -19,14 +19,15 @@
     <section class="battle-bar" aria-label="대전 현황">
       <div class="duel-score" aria-label="대전 점수">
         <span>나</span><strong id="duel-score">0 : 0</strong><span>봇</span>
+        <small id="round-label">1라운드 · 3점 선승</small>
       </div>
 
       <div class="rival-summary" aria-label="상대 상황">
         <canvas id="rival-board" width="72" height="144" aria-label="상대 미니 보드"></canvas>
         <div class="rival-summary-text">
-          <span>위험 <b id="rival-danger-value">0%</b></span>
+          <span class="rival-metrics">위험 <b id="rival-danger-value">0%</b> · 준비 <b id="rival-pending">0</b>줄</span>
           <div id="rival-danger" class="rival-danger"><i></i></div>
-          <span>공격 준비 <b id="rival-pending">0</b>줄</span>
+          <span id="bot-action" class="bot-action">실제 블록을 계산 중</span>
         </div>
       </div>
 
@@ -45,6 +46,15 @@
         <span class="sr-only">연속 강공 <b id="b2b">0</b></span>
       </div>
       <small id="duel-status" class="sr-only">대전 중</small>
+    </section>
+
+    <section class="match-strip" aria-label="매치 통계">
+      <div class="match-stats">
+        <span>보냄 <b id="stat-sent">0</b>줄</span>
+        <span>받음 <b id="stat-received">0</b>줄</span>
+        <span>최대 연속 <b id="stat-combo">0</b>회</span>
+      </div>
+      <div id="battle-feed" class="battle-feed" aria-live="polite">대전 시작</div>
     </section>
 
     <section id="game-stage" class="game-stage">
@@ -67,6 +77,7 @@
           <div id="clear-flash" class="clear-flash" aria-hidden="true"></div>
           <div id="overlay" class="overlay hidden">
             <h1 id="overlay-title">일시정지</h1>
+            <p id="overlay-detail" class="overlay-detail"></p>
             <button id="resume-btn">계속</button>
             <button id="restart-btn">다시 시작</button>
           </div>
@@ -119,7 +130,7 @@
       </div>
     </section>
   </main>
-  <script type="module" src="./src/main.js?v=043"></script>
-  <script type="module" src="./src/battle-engine.js?v=043"></script>
+  <script type="module" src="./src/main.js?v=060"></script>
+  <script type="module" src="./src/battle-engine.js?v=060"></script>
 </body>
 </html>

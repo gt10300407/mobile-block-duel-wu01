@@ -1,24 +1,33 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  BOT_COLS, BOT_ROWS, createBotBoard, boardHeight, dangerPercent,
-  addGarbageRows, removeBottomRows, randomBotStep, botProfile, shouldSendBotAttack
+  BOT_COLS,
+  BOT_ROWS,
+  createBotBoard,
+  boardHeight,
+  dangerPercent,
+  addGarbageRows,
+  removeBottomRows,
+  botProfile,
+  pendingAttackTotal,
+  cancelPendingAttacks,
+  shouldSendBotAttack,
 } from '../src/battle-engine.js';
 
-test('bot board has fixed 10x20 shape', () => {
+test('bot board includes hidden rows and keeps a 10-column shape', () => {
   const board = createBotBoard();
-  assert.equal(board.length, BOT_ROWS);
+  assert.equal(board.length, BOT_ROWS + 2);
   assert.ok(board.every(row => row.length === BOT_COLS));
 });
 
 test('garbage rows preserve one hole', () => {
   const { board, overflow } = addGarbageRows(createBotBoard(), 3, 2);
   assert.equal(overflow, false);
-  for (const row of board.slice(-3)) assert.equal(row.filter(v => v === 0).length, 1);
+  for (const row of board.slice(-3)) assert.equal(row.filter(v => v === null).length, 1);
 });
 
-test('danger grows with stack height', () => {
-  let board = addGarbageRows(createBotBoard(), 10, 1).board;
+test('danger grows with visible stack height', () => {
+  const board = addGarbageRows(createBotBoard(), 10, 1).board;
   assert.equal(boardHeight(board), 10);
   assert.equal(dangerPercent(board), 50);
 });
@@ -29,20 +38,24 @@ test('removing rows lowers stack', () => {
   assert.equal(boardHeight(board), 5);
 });
 
-test('random bot step returns valid board', () => {
-  const result = randomBotStep(createBotBoard(), () => 0.5);
-  assert.equal(result.board.length, BOT_ROWS);
-  assert.ok(result.board.flat().some(Boolean));
+test('difficulty profiles are ordered by reaction speed', () => {
+  assert.ok(botProfile('easy').fallMs > botProfile('normal').fallMs);
+  assert.ok(botProfile('normal').fallMs > botProfile('hard').fallMs);
+  assert.ok(botProfile('easy').packetMax < botProfile('hard').packetMax);
 });
 
-test('bot attack only sends while round active and charge exists', () => {
-  assert.equal(shouldSendBotAttack({pending:2,roundActive:true,elapsed:6000,cooldown:5000}), true);
-  assert.equal(shouldSendBotAttack({pending:0,roundActive:true,elapsed:6000,cooldown:5000}), false);
-  assert.equal(shouldSendBotAttack({pending:2,roundActive:false,elapsed:6000,cooldown:5000}), false);
+test('bot attack sends only a ready packet in an active round', () => {
+  const packets = [{ amount: 2, readyAt: 100, reason: '2줄 제거' }];
+  assert.equal(shouldSendBotAttack({ packets, roundActive: true, now: 100 }), true);
+  assert.equal(shouldSendBotAttack({ packets, roundActive: false, now: 200 }), false);
+  assert.equal(shouldSendBotAttack({ packets: [], roundActive: true, now: 200 }), false);
 });
 
-test('difficulty profiles are ordered', () => {
-  assert.ok(botProfile('easy').step > botProfile('normal').step);
-  assert.ok(botProfile('normal').step > botProfile('hard').step);
-  assert.ok(botProfile('easy').maxAttack < botProfile('hard').maxAttack);
+test('pending attack cancellation preserves remaining amount', () => {
+  const result = cancelPendingAttacks([
+    { amount: 2, readyAt: 1, reason: 'a' },
+    { amount: 3, readyAt: 2, reason: 'b' },
+  ], 4);
+  assert.equal(result.remaining, 0);
+  assert.equal(pendingAttackTotal(result.packets), 1);
 });

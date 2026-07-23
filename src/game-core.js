@@ -10,7 +10,7 @@ export const PIECES = {
   T: [[0,1,0],[1,1,1],[0,0,0]],
   Z: [[1,1,0],[0,1,1],[0,0,0]]
 };
-export const COLORS = {I:'#26d9ff',J:'#4e6cff',L:'#ff9b31',O:'#ffe640',S:'#48ef77',T:'#b45cff',Z:'#ff4868'};
+export const COLORS = {I:'#26d9ff',J:'#4e6cff',L:'#ff9b31',O:'#ffe640',S:'#48ef77',T:'#b45cff',Z:'#ff4868',8:'#555a66'};
 
 export function createBoard(){return Array.from({length:ROWS+HIDDEN_ROWS},()=>Array(COLS).fill(null));}
 export function rotateMatrix(matrix){const n=matrix.length;return Array.from({length:n},(_,y)=>Array.from({length:n},(_,x)=>matrix[n-1-x][y]));}

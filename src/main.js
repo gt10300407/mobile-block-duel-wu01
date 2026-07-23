@@ -1,14 +1,14 @@
-import {Bag,COLORS,COLS,ROWS,HIDDEN_ROWS,createBoard,makePiece,collides,mergePiece,clearLines,rotateMatrix,scoreFor,attackFor,isPerfectClear,isTSpin,ghostY} from './game-core.js?v=043';
-import {classifyGesture,getSwipePreset,resolveAxis,stepsFromDistance} from './input-utils.js?v=043';
-import {getAudioStatus,isSoundSupported,playSound,setSoundEnabled,unlockAudio} from './audio-engine.js?v=043';
-import {verticalPreviewRects,fitBoardWidth} from './layout-utils.js?v=043';
+import {Bag,COLORS,COLS,ROWS,HIDDEN_ROWS,createBoard,makePiece,collides,mergePiece,clearLines,rotateMatrix,scoreFor,attackFor,isPerfectClear,isTSpin,ghostY} from './game-core.js?v=060';
+import {classifyGesture,getSwipePreset,resolveAxis,stepsFromDistance} from './input-utils.js?v=060';
+import {getAudioStatus,isSoundSupported,playSound,setSoundEnabled,unlockAudio} from './audio-engine.js?v=060';
+import {verticalPreviewRects,fitBoardWidth} from './layout-utils.js?v=060';
 
 const $=s=>document.querySelector(s);
 const boardCanvas=$('#board'),ctx=boardCanvas.getContext('2d');
 const holdCanvas=$('#hold'),hctx=holdCanvas.getContext('2d');
 const nextCanvas=$('#next'),nctx=nextCanvas.getContext('2d');
 const wrap=$('#board-wrap');
-const SETTINGS_KEY='block-duel-wu043-settings';
+const SETTINGS_KEY='block-duel-wu06-settings';
 const WEB_VIBRATE_SUPPORTED=typeof navigator.vibrate==='function';
 const NATIVE_HAPTICS=globalThis.Capacitor?.Plugins?.Haptics||null;
 const HAPTIC_SUPPORTED=Boolean(NATIVE_HAPTICS||WEB_VIBRATE_SUPPORTED);
@@ -92,11 +92,11 @@ function lock(strong=false){
   if(strong){effect('small');haptic('medium');}
   state.dropMs=Math.max(90,700-(state.level-1)*58);spawn();updateHud();
 }
-function addIncomingGarbage(amount){
+function addIncomingGarbage(amount,reason='방해 블록이 아래에서 올라와'){
   const incomingEl=$('#incoming-attack');if(incomingEl)incomingEl.textContent=String(Math.max(0,Number(amount)||0));
-  showAttackNotice(`상대 공격 ${Math.max(0,Number(amount)||0)}줄`,'방해 블록이 아래에서 올라와','receive');
+  showAttackNotice(`상대 공격 ${Math.max(0,Number(amount)||0)}줄`,reason,'receive');
   if(state.paused||state.over||state.roundWon)return;
-  const count=Math.max(0,Math.min(4,Number(amount)||0));if(!count)return;
+  const count=Math.max(0,Math.min(6,Number(amount)||0));if(!count)return;
   let overflow=false;
   for(let i=0;i<count;i++){
     const removed=state.board.shift();if(removed?.some(Boolean))overflow=true;
@@ -107,7 +107,7 @@ function addIncomingGarbage(amount){
   drawAll();
   setTimeout(()=>{if(incomingEl)incomingEl.textContent='0';},900);
 }
-window.addEventListener('botattack',event=>addIncomingGarbage(event.detail?.amount));
+window.addEventListener('botattack',event=>addIncomingGarbage(event.detail?.amount,event.detail?.reason));
 window.addEventListener('botko',()=>{
   if(state.over||state.roundWon)return;
   state.roundWon=true;state.paused=true;stopAllPresses();
@@ -150,10 +150,21 @@ async function haptic(level){
 }
 function showOverlay(title,kind='pause'){
   $('#overlay-title').textContent=title;$('#overlay').dataset.kind=kind;
-  $('#resume-btn').textContent=kind==='round'?'다음 라운드':'계속';
-  $('#restart-btn').textContent=kind==='round'?'전체 다시 시작':'다시 시작';
+  if(kind!=='match')$('#overlay-detail').textContent='';
+  $('#resume-btn').textContent=kind==='match'?'재대결':kind==='round'?'다음 라운드':'계속';
+  $('#restart-btn').textContent=kind==='match'?'처음부터':kind==='round'?'전체 다시 시작':'다시 시작';
   $('#overlay').classList.remove('hidden');
 }
+window.addEventListener('duelroundresult',event=>{
+  const detail=event.detail||{};
+  if(detail.matchOver){
+    state.paused=true;state.over=true;state.roundWon=detail.winner==='player';stopAllPresses();
+    showOverlay(detail.winner==='player'?'매치 승리':'매치 패배','match');
+    const s=detail.summary||{};
+    $('#overlay-detail').textContent=`최종 ${s.scoreText||''} · 보낸 공격 ${s.sentText||'0줄'} · 받은 공격 ${s.receivedText||'0줄'} · 최대 연속 ${s.comboText||'0회'}`;
+    void playSound(detail.winner==='player'?'victory':'gameOver');
+  }
+});
 function hideOverlay(){$('#overlay').classList.add('hidden');delete $('#overlay').dataset.kind;}
 function togglePause(){if(state.over||state.roundWon)return;state.paused=!state.paused;state.paused?(stopAllPresses(),showOverlay('일시정지','pause')):hideOverlay();}
 function updateHud(){$('#score').textContent=state.score.toLocaleString();$('#lines').textContent=state.lines;$('#level').textContent=state.level;$('#b2b').textContent=state.b2b;$('#time').textContent=`${String(Math.floor(state.elapsed/60)).padStart(2,'0')}:${String(Math.floor(state.elapsed%60)).padStart(2,'0')}`;}
@@ -224,7 +235,9 @@ $('#hold-btn').addEventListener('click',hold);
 $('#pause-btn').addEventListener('click',togglePause);
 $('#resume-btn').addEventListener('click',()=>{
   void unlockAudio();
-  if($('#overlay').dataset.kind==='round'||state.over||state.roundWon)resetGame({fullMatch:false,announce:true});
+  const kind=$('#overlay').dataset.kind;
+  if(kind==='match')resetGame({fullMatch:true,announce:true});
+  else if(kind==='round'||state.over||state.roundWon)resetGame({fullMatch:false,announce:true});
   else{state.paused=false;hideOverlay();state.last=performance.now();}
 });
 $('#restart-btn').addEventListener('click',()=>{void unlockAudio();resetGame({fullMatch:true,announce:true});});
